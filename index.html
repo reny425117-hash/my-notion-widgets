@@ -6,26 +6,37 @@
     <title>Motivation Archive</title>
     <style>
         :root { --bg: #ffffff; --text: #000000; --border: #000000; }
-        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
-        .input-section { border: 2px solid var(--border); padding: 20px; margin-bottom: 40px; background: #fff; }
-        .input-section h2 { margin: 0 0 15px 0; font-size: 22px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid var(--text); padding-bottom: 10px; }
-        input, textarea, select { width: 100%; margin-bottom: 12px; padding: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 14px; }
+        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; scroll-behavior: smooth; }
         
-        /* 카테고리 추가 영역 */
+        /* 입력 섹션 */
+        .input-section { border: 2px solid var(--border); padding: 20px; margin-bottom: 40px; background: #fff; position: relative; }
+        .input-section h2 { margin: 0 0 15px 0; font-size: 22px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid var(--text); padding-bottom: 10px; }
+        input, textarea, select { width: 100%; margin-bottom: 12px; padding: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 14px; border-radius: 0; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--text); }
+        
         .category-add-group { display: flex; gap: 5px; margin-bottom: 12px; }
         .category-add-group input { margin-bottom: 0; flex: 1; border-style: dashed; }
-        .add-cat-btn { width: auto; padding: 0 15px; font-size: 12px; white-space: nowrap; background: #eee; color: #000; border: 1px solid #000; }
+        .add-cat-btn { width: auto; padding: 0 15px; font-size: 11px; background: #eee; color: #000; border: 1px solid #000; cursor: pointer; font-weight: bold; }
 
-        button.main-btn { width: 100%; padding: 14px; background-color: var(--text); color: var(--bg); border: none; cursor: pointer; font-weight: 900; text-transform: uppercase; }
+        button.main-btn { width: 100%; padding: 14px; background-color: var(--text); color: var(--bg); border: none; cursor: pointer; font-weight: 900; text-transform: uppercase; transition: 0.2s; }
+        button.main-btn.editing { background-color: #555; } /* 수정 중일 때 버튼 색상 변경 */
+
+        /* 아카이브 그리드 */
         .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-        .video-card { border: 1px solid #eee; padding: 0 0 15px 0; display: flex; flex-direction: column; transition: 0.3s; }
+        .video-card { border: 1px solid #eee; padding: 0 0 15px 0; display: flex; flex-direction: column; transition: 0.3s; position: relative; }
         .video-card:hover { border-color: var(--text); box-shadow: 10px 10px 0px rgba(0,0,0,0.05); }
+        
+        /* 수정 버튼 스타일 */
+        .edit-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: 1px solid var(--text); color: var(--text); font-size: 10px; font-weight: bold; padding: 4px 8px; cursor: pointer; z-index: 10; text-transform: uppercase; }
+        .edit-btn:hover { background: var(--text); color: var(--bg); }
+
         .thumb-container { width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #eee; }
         .thumbnail { width: 100%; height: 100%; object-fit: cover; }
         .card-content { padding: 15px; }
         .video-category { font-size: 10px; font-weight: bold; background: var(--text); color: #fff; padding: 2px 8px; display: inline-block; margin-bottom: 10px; }
-        .video-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+        .video-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; word-break: break-all; }
         .video-thoughts { font-size: 13px; color: #555; margin-bottom: 15px; white-space: pre-wrap; }
+        
         .card-footer { margin-top: auto; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; }
         .link-btn { color: var(--text); text-decoration: none; font-size: 12px; font-weight: bold; border-bottom: 2px solid var(--text); }
         .delete-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 11px; }
@@ -33,30 +44,28 @@
 </head>
 <body>
 
-    <div class="input-section">
-        <h2>Motivation</h2>
-        <input type="text" id="vTitle" placeholder="영상의 제목">
+    <div class="input-section" id="top">
+        <h2 id="formTitle">Motivation</h2>
+        <input type="hidden" id="editIndex" value="-1"> <input type="text" id="vTitle" placeholder="영상의 제목">
         <input type="text" id="vLink" placeholder="유튜브 URL">
         
         <select id="vCategorySelect"></select>
         <div class="category-add-group">
-            <input type="text" id="newCatInput" placeholder="새 카테고리 이름 입력">
+            <input type="text" id="newCatInput" placeholder="새 카테고리 추가">
             <button class="add-cat-btn" onclick="addNewCategory()">목록에 추가</button>
         </div>
 
         <textarea id="vThoughts" rows="3" placeholder="감상평을 적어주세요"></textarea>
-        <button class="main-btn" onclick="addVideo()">Add to Archive</button>
+        <button class="main-btn" id="submitBtn" onclick="addVideo()">Add to Archive</button>
     </div>
 
     <div class="archive-grid" id="archiveGrid"></div>
 
     <script>
-        // 초기 카테고리 목록
         const defaultCategories = ["패션 및 아이템", "vibe", "진로", "취미", "독서", "게임", "영화"];
         let categories = JSON.parse(localStorage.getItem('motivation_cats')) || defaultCategories;
-        let videos = JSON.parse(localStorage.getItem('motivation_archive_v3')) || [];
+        let videos = JSON.parse(localStorage.getItem('motivation_archive_v4')) || [];
 
-        // 카테고리 드롭다운 갱신
         function updateCategorySelect() {
             const select = document.getElementById('vCategorySelect');
             select.innerHTML = '<option value="">카테고리 선택</option>';
@@ -68,7 +77,6 @@
             });
         }
 
-        // 새로운 카테고리 목록에 추가
         function addNewCategory() {
             const input = document.getElementById('newCatInput');
             const newCat = input.value.trim();
@@ -77,7 +85,6 @@
                 localStorage.setItem('motivation_cats', JSON.stringify(categories));
                 updateCategorySelect();
                 input.value = '';
-                alert(`'${newCat}' 카테고리가 추가되었습니다.`);
             }
         }
 
@@ -94,6 +101,7 @@
                 const card = document.createElement('div');
                 card.className = 'video-card';
                 card.innerHTML = `
+                    <button class="edit-btn" onclick="editVideo(${index})">Edit</button>
                     <div class="thumb-container"><img src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" class="thumbnail"></div>
                     <div class="card-content">
                         <div class="video-category">${v.category}</div>
@@ -114,23 +122,58 @@
             const link = document.getElementById('vLink').value;
             const category = document.getElementById('vCategorySelect').value;
             const thoughts = document.getElementById('vThoughts').value;
+            const editIndex = parseInt(document.getElementById('editIndex').value);
             const videoId = getYoutubeId(link);
 
-            if(!title || !videoId || !category) return alert("제목, 링크, 카테고리를 모두 확인해주세요!");
+            if(!title || !videoId || !category) return alert("필수 항목을 모두 입력해주세요!");
 
-            videos.unshift({ title, link, category, thoughts, id: videoId });
-            localStorage.setItem('motivation_archive_v3', JSON.stringify(videos));
-            
-            document.getElementById('vTitle').value = '';
-            document.getElementById('vLink').value = '';
-            document.getElementById('vThoughts').value = '';
+            const videoData = { title, link, category, thoughts, id: videoId };
+
+            if (editIndex > -1) {
+                // 수정 모드
+                videos[editIndex] = videoData;
+                document.getElementById('editIndex').value = "-1";
+                document.getElementById('submitBtn').textContent = "Add to Archive";
+                document.getElementById('submitBtn').classList.remove('editing');
+                document.getElementById('formTitle').textContent = "Motivation";
+            } else {
+                // 신규 등록 모드
+                videos.unshift(videoData);
+            }
+
+            localStorage.setItem('motivation_archive_v4', JSON.stringify(videos));
+            resetForm();
             render();
         }
 
+        function editVideo(index) {
+            const v = videos[index];
+            document.getElementById('vTitle').value = v.title;
+            document.getElementById('vLink').value = v.link;
+            document.getElementById('vCategorySelect').value = v.category;
+            document.getElementById('vThoughts').value = v.thoughts;
+            document.getElementById('editIndex').value = index;
+            
+            // UI 변경
+            document.getElementById('submitBtn').textContent = "Update Archive";
+            document.getElementById('submitBtn').classList.add('editing');
+            document.getElementById('formTitle').textContent = "Editing Mode";
+            
+            // 상단으로 스크롤
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('vTitle').value = '';
+            document.getElementById('vLink').value = '';
+            document.getElementById('vThoughts').value = '';
+            document.getElementById('vCategorySelect').value = '';
+        }
+
         function deleteVideo(index) {
-            if(confirm('삭제할까요?')) {
+            if(confirm('정말 삭제하시겠습니까?')) {
                 videos.splice(index, 1);
-                localStorage.setItem('motivation_archive_v3', JSON.stringify(videos));
+                localStorage.setItem('motivation_archive_v4', JSON.stringify(videos));
                 render();
             }
         }

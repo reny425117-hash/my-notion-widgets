@@ -5,157 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motivation Archive</title>
     <style>
-        :root {
-            --bg: #ffffff;
-            --text: #000000;
-            --border: #000000;
-            --gray: #f2f2f2;
-        }
-        body {
-            font-family: -apple-system, system-ui, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .input-section {
-            border: 2px solid var(--border);
-            padding: 20px;
-            margin-bottom: 40px;
-            background: #fff;
-        }
-        .input-section h2 {
-            margin-top: 0;
-            font-size: 22px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-bottom: 1px solid var(--text);
-            padding-bottom: 10px;
-        }
-        input, textarea, select {
-            width: 100%;
-            margin-bottom: 12px;
-            padding: 12px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            font-size: 14px;
-            border-radius: 0;
-        }
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--text);
-        }
-        /* 직접 입력 칸 초기에는 숨김 */
-        #vCategoryCustom {
-            display: none;
-            border-style: dashed;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--text);
-            color: var(--bg);
-            border: none;
-            cursor: pointer;
-            font-weight: 900;
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-        button:hover {
-            background-color: #333;
-        }
-        .archive-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-        .video-card {
-            border: 1px solid #eee;
-            padding: 0 0 15px 0;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-        }
-        .video-card:hover {
-            border-color: var(--text);
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.05);
-        }
-        .thumb-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16/9;
-            overflow: hidden;
-            background: #eee;
-        }
-        .thumbnail {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .card-content {
-            padding: 15px;
-        }
-        .video-category {
-            font-size: 10px;
-            font-weight: bold;
-            background: var(--text);
-            color: #fff;
-            padding: 2px 8px;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        .video-title {
-            font-size: 17px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            line-height: 1.3;
-        }
-        .video-thoughts {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 15px;
-            white-space: pre-wrap;
-        }
-        .card-footer {
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .link-btn {
-            color: var(--text);
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: bold;
-            border-bottom: 2px solid var(--text);
-        }
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #ccc;
-            cursor: pointer;
-            font-size: 11px;
-        }
-        .delete-btn:hover { color: #ff0000; }
-        #empty-msg {
-            text-align: center;
-            padding: 50px;
-            color: #999;
-            grid-column: 1 / -1;
-        }
+        :root { --bg: #ffffff; --text: #000000; --border: #000000; }
+        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; line-height: 1.6; }
+        .input-section { border: 2px solid var(--border); padding: 20px; margin-bottom: 40px; background: #fff; }
+        .input-section h2 { margin: 0 0 15px 0; font-size: 22px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid var(--text); padding-bottom: 10px; }
+        input, textarea, select { width: 100%; margin-bottom: 12px; padding: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 14px; }
+        
+        /* 카테고리 추가 영역 */
+        .category-add-group { display: flex; gap: 5px; margin-bottom: 12px; }
+        .category-add-group input { margin-bottom: 0; flex: 1; border-style: dashed; }
+        .add-cat-btn { width: auto; padding: 0 15px; font-size: 12px; white-space: nowrap; background: #eee; color: #000; border: 1px solid #000; }
+
+        button.main-btn { width: 100%; padding: 14px; background-color: var(--text); color: var(--bg); border: none; cursor: pointer; font-weight: 900; text-transform: uppercase; }
+        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .video-card { border: 1px solid #eee; padding: 0 0 15px 0; display: flex; flex-direction: column; transition: 0.3s; }
+        .video-card:hover { border-color: var(--text); box-shadow: 10px 10px 0px rgba(0,0,0,0.05); }
+        .thumb-container { width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #eee; }
+        .thumbnail { width: 100%; height: 100%; object-fit: cover; }
+        .card-content { padding: 15px; }
+        .video-category { font-size: 10px; font-weight: bold; background: var(--text); color: #fff; padding: 2px 8px; display: inline-block; margin-bottom: 10px; }
+        .video-title { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+        .video-thoughts { font-size: 13px; color: #555; margin-bottom: 15px; white-space: pre-wrap; }
+        .card-footer { margin-top: auto; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; }
+        .link-btn { color: var(--text); text-decoration: none; font-size: 12px; font-weight: bold; border-bottom: 2px solid var(--text); }
+        .delete-btn { background: none; border: none; color: #ccc; cursor: pointer; font-size: 11px; }
     </style>
 </head>
 <body>
 
     <div class="input-section">
         <h2>Motivation</h2>
-        <input type="text" id="vTitle" placeholder="영상의 제목을 입력하세요">
-        <input type="text" id="vLink" placeholder="유튜브 URL (https://...)">
+        <input type="text" id="vTitle" placeholder="영상의 제목">
+        <input type="text" id="vLink" placeholder="유튜브 URL">
         
-        <select id="vCategory" onchange="checkCategory(this.value)">
-            <option value="">카테고리 선택</option>
-            <option value="패션 및 아이템">패션 및 아이템</option>
-            <option value="vibe">vibe</option>
-            <option value="진로">진로</option>
-            <option value="취미">취미</option>
+        <select id="vCategorySelect"></select>
+        <div class="category-add-group">
+            <input type="text" id="newCatInput" placeholder="새 카테고리 이름 입력">
+            <button class="add-cat-btn" onclick="addNewCategory()">목록에 추가</button>
+        </div>
+
+        <textarea id="vThoughts" rows="3" placeholder="감상평을 적어주세요"></textarea>
+        <button class="main-btn" onclick="addVideo()">Add to Archive</button>
+    </div>
+
+    <div class="archive-grid" id="archiveGrid"></div>
+
+    <script>
+        // 초기 카테고리 목록
+        const defaultCategories = ["패션 및 아이템", "vibe", "진로", "취미", "독서", "게임", "영화"];
+        let categories = JSON.parse(localStorage.getItem('motivation_cats')) || defaultCategories;
+        let videos = JSON.parse(localStorage.getItem('motivation_archive_v3')) || [];
+
+        // 카테고리 드롭다운 갱신
+        function updateCategorySelect() {
+            const select = document.getElementById('vCategorySelect');
+            select.innerHTML = '<option value="">카테고리 선택</option>';
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                select.appendChild(opt);
+            });
+        }
+
+        // 새로운 카테고리 목록에 추가
+        function addNewCategory() {
+            const input = document.getElementById('newCatInput');
+            const newCat = input.value.trim();
+            if (newCat && !categories.includes(newCat)) {
+                categories.push(newCat);
+                localStorage.setItem('motivation_cats', JSON.stringify(categories));
+                updateCategorySelect();
+                input.value = '';
+                alert(`'${newCat}' 카테고리가 추가되었습니다.`);
+            }
+        }
+
+        function getYoutubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function render() {
+            const grid = document.getElementById('archiveGrid');
+            grid.innerHTML = videos.length === 0 ? '<div style="color:#999; padding:20px;">기록이 없습니다.</div>' : '';
+            videos.forEach((v, index) => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <div class="thumb-container"><img src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" class="thumbnail"></div>
+                    <div class="card-content">
+                        <div class="video-category">${v.category}</div>
+                        <div class="video-title">${v.title}</div>
+                        <div class="video-thoughts">${v.thoughts}</div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="${v.link}" target="_blank" class="link-btn">WATCH</a>
+                        <button class="delete-btn" onclick="deleteVideo(${index})">DELETE</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function addVideo() {
+            const title = document.getElementById('vTitle').value;
+            const link = document.getElementById('vLink').value;
+            const category = document.getElementById('vCategorySelect').value;
+            const thoughts = document.getElementById('vThoughts').value;
+            const videoId = getYoutubeId(link);
+
+            if(!title || !videoId || !category) return alert("제목, 링크, 카테고리를 모두 확인해주세요!");
+
+            videos.unshift({ title, link, category, thoughts, id: videoId });
+            localStorage.setItem('motivation_archive_v3', JSON.stringify(videos));
+            
+            document.getElementById('vTitle').value = '';
+            document.getElementById('vLink').value = '';
+            document.getElementById('vThoughts').value = '';
+            render();
+        }
+
+        function deleteVideo(index) {
+            if(confirm('삭제할까요?')) {
+                videos.splice(index, 1);
+                localStorage.setItem('motivation_archive_v3', JSON.stringify(videos));
+                render();
+            }
+        }
+
+        updateCategorySelect();
+        render();
+    </script>
+</body>
+</html>

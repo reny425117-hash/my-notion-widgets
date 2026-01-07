@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B&W Archive Widget</title>
+    <title>Motivation Archive</title>
     <style>
         :root {
             --bg: #ffffff;
             --text: #000000;
-            --border: #000000; /* 조금 더 강렬한 블랙 라인 */
+            --border: #000000;
             --gray: #f2f2f2;
         }
         body {
@@ -19,7 +19,6 @@
             padding: 20px;
             line-height: 1.6;
         }
-        /* 입력 섹션: 노션의 깔끔한 디자인을 따름 */
         .input-section {
             border: 2px solid var(--border);
             padding: 20px;
@@ -28,9 +27,11 @@
         }
         .input-section h2 {
             margin-top: 0;
-            font-size: 18px;
+            font-size: 22px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--text);
+            padding-bottom: 10px;
         }
         input, textarea, select {
             width: 100%;
@@ -39,11 +40,16 @@
             border: 1px solid #ccc;
             box-sizing: border-box;
             font-size: 14px;
-            border-radius: 0; /* 각진 블랙앤화이트 감성 */
+            border-radius: 0;
         }
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: var(--text);
+        }
+        /* 직접 입력 칸 초기에는 숨김 */
+        #vCategoryCustom {
+            display: none;
+            border-style: dashed;
         }
         button {
             width: 100%;
@@ -59,7 +65,6 @@
         button:hover {
             background-color: #333;
         }
-        /* 그리드 레이아웃 */
         .archive-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -74,7 +79,7 @@
         }
         .video-card:hover {
             border-color: var(--text);
-            box-shadow: 10px 10px 0px rgba(0,0,0,0.05); /* 힙한 블랙앤화이트 그림자 */
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.05);
         }
         .thumb-container {
             position: relative;
@@ -110,10 +115,7 @@
             font-size: 13px;
             color: #555;
             margin-bottom: 15px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3; /* 세 줄까지만 표시 */
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            white-space: pre-wrap;
         }
         .card-footer {
             margin-top: auto;
@@ -136,8 +138,6 @@
             font-size: 11px;
         }
         .delete-btn:hover { color: #ff0000; }
-
-        /* 데이터 없을 때 메시지 */
         #empty-msg {
             text-align: center;
             padding: 50px;
@@ -149,97 +149,13 @@
 <body>
 
     <div class="input-section">
-        <h2>Capture Inspiration</h2>
+        <h2>Motivation</h2>
         <input type="text" id="vTitle" placeholder="영상의 제목을 입력하세요">
         <input type="text" id="vLink" placeholder="유튜브 URL (https://...)">
-        <select id="vCategory">
-            <option value="Insight">Insight / Knowledge</option>
-            <option value="Material">Materials Science</option>
-            <option value="Leadership">Leadership / ROTC</option>
-            <option value="Vibe">Vibe / Music</option>
-        </select>
-        <textarea id="vThoughts" rows="3" placeholder="어떤 점이 인상 깊었나요?"></textarea>
-        <button onclick="addVideo()">Add to Archive</button>
-    </div>
-
-    <div class="archive-grid" id="archiveGrid">
-        </div>
-
-    <script>
-        // 검토 포인트 1: 더 정교한 유튜브 ID 추출 정규식
-        function getYoutubeId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        let videos = JSON.parse(localStorage.getItem('mse_archive_v1')) || [];
-
-        function render() {
-            const grid = document.getElementById('archiveGrid');
-            grid.innerHTML = '';
-            
-            if (videos.length === 0) {
-                grid.innerHTML = '<div id="empty-msg">아직 기록된 영상이 없습니다. 첫 번째 영감을 추가해보세요.</div>';
-                return;
-            }
-
-            videos.forEach((v, index) => {
-                const card = document.createElement('div');
-                card.className = 'video-card';
-                // 검토 포인트 2: 고화질 썸네일(maxres)이 없을 경우 대비 기본형(hq) 사용
-                const thumbUrl = `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`; 
-                
-                card.innerHTML = `
-                    <div class="thumb-container">
-                        <img src="${thumbUrl}" class="thumbnail" alt="thumb">
-                    </div>
-                    <div class="card-content">
-                        <div class="video-category">${v.category}</div>
-                        <div class="video-title">${v.title}</div>
-                        <div class="video-thoughts">${v.thoughts}</div>
-                        <div class="card-footer">
-                            <a href="${v.link}" target="_blank" class="link-btn">WATCH VIDEO</a>
-                            <button class="delete-btn" onclick="deleteVideo(${index})">DELETE</button>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function addVideo() {
-            const title = document.getElementById('vTitle').value;
-            const link = document.getElementById('vLink').value;
-            const category = document.getElementById('vCategory').value;
-            const thoughts = document.getElementById('vThoughts').value;
-            const videoId = getYoutubeId(link);
-
-            if(!title || !videoId) {
-                alert("제목과 올바른 유튜브 링크를 입력해주세요!");
-                return;
-            }
-
-            const newVideo = { title, link, category, thoughts, id: videoId };
-            videos.unshift(newVideo);
-            localStorage.setItem('mse_archive_v1', JSON.stringify(videos));
-            
-            // 입력창 초기화
-            document.getElementById('vTitle').value = '';
-            document.getElementById('vLink').value = '';
-            document.getElementById('vThoughts').value = '';
-            render();
-        }
-
-        function deleteVideo(index) {
-            if(confirm('이 기록을 삭제하시겠습니까?')) {
-                videos.splice(index, 1);
-                localStorage.setItem('mse_archive_v1', JSON.stringify(videos));
-                render();
-            }
-        }
-
-        render();
-    </script>
-</body>
-</html>
+        
+        <select id="vCategory" onchange="checkCategory(this.value)">
+            <option value="">카테고리 선택</option>
+            <option value="패션 및 아이템">패션 및 아이템</option>
+            <option value="vibe">vibe</option>
+            <option value="진로">진로</option>
+            <option value="취미">취미</option>

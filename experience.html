@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experience Archive</title>
+    <style>
+        :root { --bg: #ffffff; --text: #000000; --border: #000000; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .input-section { border: 2px solid var(--border); padding: 20px; margin-bottom: 30px; }
+        .input-section h2 { margin: 0 0 15px 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--text); display: inline-block; }
+        input, textarea { width: 100%; margin-bottom: 10px; padding: 12px; border: 1px solid #ccc; box-sizing: border-box; font-size: 14px; }
+        button { width: 100%; padding: 14px; background: var(--text); color: #fff; border: none; cursor: pointer; font-weight: 800; text-transform: uppercase; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .exp-card { border: 1px solid var(--text); padding: 20px; display: flex; flex-direction: column; transition: 0.2s; }
+        .exp-card:hover { box-shadow: 8px 8px 0px rgba(0,0,0,0.05); }
+        .exp-title { font-size: 18px; font-weight: 900; margin-bottom: 10px; border-left: 4px solid var(--text); padding-left: 10px; }
+        .exp-label { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #fff; background: #000; padding: 2px 6px; display: inline-block; margin-bottom: 10px; }
+        .exp-content { font-size: 13px; margin-bottom: 10px; line-height: 1.6; }
+        .exp-skills { font-size: 12px; font-weight: 700; color: #555; font-style: italic; }
+        .delete-btn { margin-top: 15px; background: none; border: none; color: #999; text-decoration: underline; cursor: pointer; font-size: 11px; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <div class="input-section">
+        <h2>Experience & Growth</h2>
+        <input type="text" id="eTitle" placeholder="활동명 (예: 신소재공학부 학부연구생 인턴)">
+        <textarea id="eLearned" rows="3" placeholder="무엇을 배웠나요? (핵심 내용)"></textarea>
+        <input type="text" id="eSkills" placeholder="향상된 능력 (예: SEM 장비 운용 능력, 논문 분석력)">
+        <button onclick="addExperience()">Record Growth</button>
+    </div>
+
+    <div class="grid" id="expGrid"></div>
+
+    <script>
+        let experiences = JSON.parse(localStorage.getItem('my_growth_v1')) || [];
+
+        function render() {
+            const grid = document.getElementById('expGrid');
+            grid.innerHTML = experiences.length === 0 ? '<div style="color:#999">기록된 경험이 없습니다.</div>' : '';
+            experiences.forEach((e, i) => {
+                const card = document.createElement('div');
+                card.className = 'exp-card';
+                card.innerHTML = `
+                    <div class="exp-label">Achievement</div>
+                    <div class="exp-title">${e.title}</div>
+                    <div class="exp-content"><strong>Learned:</strong><br>${e.learned}</div>
+                    <div class="exp-skills"><strong>Skills:</strong> ${e.skills}</div>
+                    <button class="delete-btn" onclick="deleteExp(${i})">Delete</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function addExperience() {
+            const title = document.getElementById('eTitle').value;
+            const learned = document.getElementById('eLearned').value;
+            const skills = document.getElementById('eSkills').value;
+
+            if(!title || !learned) return alert("내용을 입력해주세요!");
+
+            experiences.unshift({ title, learned, skills });
+            localStorage.setItem('my_growth_v1', JSON.stringify(experiences));
+            
+            document.getElementById('eTitle').value = '';
+            document.getElementById('eLearned').value = '';
+            document.getElementById('eSkills').value = '';
+            render();
+        }
+
+        function deleteExp(i) {
+            if(confirm('삭제할까요?')) {
+                experiences.splice(i, 1);
+                localStorage.setItem('my_growth_v1', JSON.stringify(experiences));
+                render();
+            }
+        }
+        render();
+    </script>
+</body>
+</html>

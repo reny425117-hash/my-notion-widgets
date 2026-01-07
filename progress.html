@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B&W Progress Widget</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #000000;
+            --gray-bar-bg: #eeeeee;
+            --bar-fill: #000000;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: transparent; /* 노션 배경에 녹아들도록 투명 설정 */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px; /* 카드 사이 간격 */
+        }
+        .card {
+            background: var(--bg);
+            border: 2px solid var(--text); /* 두꺼운 블랙 테두리 */
+            padding: 20px;
+            /* box-shadow: 5px 5px 0px rgba(0,0,0,0.1); 입체감을 원하면 주석 해제 */
+        }
+        .title {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        /* 아이콘 스타일 (흑백 처리) */
+        .icon {
+            font-size: 18px;
+            filter: grayscale(100%); 
+        }
+        .progress-container {
+            height: 14px;
+            background: var(--gray-bar-bg);
+            border: 1px solid var(--text); /* 진행바 테두리 */
+            border-radius: 0; /* 각진 디자인 */
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--bar-fill); /* 완전한 블랙 채우기 */
+            width: 0%; /* 초기값 0%에서 애니메이션 시작 */
+            transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        .status-text {
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 10px;
+            color: var(--text);
+            text-align: right;
+        }
+        .percentage {
+            font-family: 'Courier New', monospace; /* 숫자 강조용 폰트 */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="title">
+            <span class="icon">🧪</span> Research & Career
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 75%;"></div>
+        </div>
+        <div class="status-text">
+            <span class="percentage">75%</span> — 학부연구생 컨택 완료
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="title">
+            <span class="icon">🎖️</span> Leadership & ROTC
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" style="width: 40%;"></div>
+        </div>
+        <div class="status-text">
+            <span class="percentage">40%</span> — 기초 체력 단련 중
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 프로그레스 바 애니메이션 실행
+        window.onload = function() {
+            const bars = document.querySelectorAll('.progress-bar');
+            bars.forEach(bar => {
+                // HTML 태그에 설정된 width 값을 가져와서 적용
+                const targetWidth = bar.style.width;
+                bar.style.width = '0'; // 일단 0으로 만들고
+                setTimeout(() => {
+                    bar.style.width = targetWidth; // 잠시 후 목표치까지 애니메이션
+                }, 100);
+            });
+        };
+    </script>
+
+</body>
+</html>
